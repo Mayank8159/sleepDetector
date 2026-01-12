@@ -1,38 +1,46 @@
-🚗 Driver Drowsiness Detection
+Here’s a short, clean, and beautiful **README.md** you can use for your project:
 
-A real-time driver drowsiness detection web app using Next.js, MediaPipe, and Three.js. Detects facial landmarks via webcam, computes Eye Aspect Ratio (EAR) and head nods, and visualizes a 3D face.
+```markdown
+# 🚗 Driver Drowsiness Detector
 
-✨ Features
+A real‑time **driver drowsiness detection app** built with **Next.js, Mediapipe, and Three.js**.  
+It monitors facial landmarks to calculate **Eye Aspect Ratio (EAR)** and detect **head nods**, alerting when drowsiness is detected.
 
-🖥️ Real-time face landmark detection
+🌐 Live Demo: [sleep-detector-two.vercel.app](https://sleep-detector-two.vercel.app/)
 
-😴 EAR & head nod detection for drowsiness
+---
 
-🧑‍🦱 3D face visualization with Three.js
+## ✨ Features
+- 🎥 Live webcam feed  
+- 👁️ Eye closure detection (EAR)  
+- 🙇 Head nod detection  
+- 🧩 3D facial landmark visualization  
+- 📊 Responsive dashboard with alerts  
 
-🌐 Works entirely in-browser
+---
 
-🛠️ Tech Stack
-
-⚛️ Next.js (React)
-
-🖼️ @mediapipe/tasks-vision
-
-🔺 Three.js & @react-three/fiber
-
-🎨 Tailwind CSS
-
-🚀 Setup
-git clone <repo-url>
+## ⚙️ Getting Started
+```bash
+git clone https://github.com/your-username/driver-drowsiness.git
 cd driver-drowsiness
 npm install
 npm run dev
+```
 
+Download the Mediapipe model file into `public/models/face_landmarker.task`.
 
-Open [https://sleep-detector-two.vercel.app/]
- and allow webcam access.
+---
 
-📄 License
+## 📜 License
+MIT License
 
-MIT © 2026 — Mayank Kumar Sharma
+---
 
+### Built with ❤️ by Mayank Kumar Sharma
+```
+
+---
+
+This version is **short, elegant, and demo‑focused**. It highlights your live link and keeps the setup simple.  
+
+Would you like me to also design a **banner image (SVG/PNG)** for the README header so it looks visually striking on GitHub?
