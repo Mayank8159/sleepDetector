@@ -3,14 +3,13 @@ import { useEffect, useRef } from "react";
 import * as THREE from "three";
 
 interface Props {
-  landmarks: {
-    leftEye?: [number, number, number];
-    rightEye?: [number, number, number];
-  } | null;
+  landmarks: { x: number; y: number; z: number }[] | null;
 }
 
 export default function ThreeFace({ landmarks }: Props) {
   const mountRef = useRef<HTMLDivElement>(null);
+  const pointsRef = useRef<THREE.Points>();
+  const animationIdRef = useRef<number>();
 
   useEffect(() => {
     if (!mountRef.current) return;
@@ -25,6 +24,7 @@ export default function ThreeFace({ landmarks }: Props) {
 
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     renderer.setSize(width, height);
+    renderer.setPixelRatio(window.devicePixelRatio);
     mountRef.current.appendChild(renderer.domElement);
 
     // Lighting
@@ -32,41 +32,68 @@ export default function ThreeFace({ landmarks }: Props) {
     light.position.set(0, 1, 1);
     scene.add(light);
 
-    // Eye spheres
-    const geometry = new THREE.SphereGeometry(0.05, 32, 32);
-    const material = new THREE.MeshStandardMaterial({ color: 0x00ff00 });
-    const leftEye = new THREE.Mesh(geometry, material);
-    const rightEye = new THREE.Mesh(geometry, material);
-    leftEye.position.x = -0.1;
-    rightEye.position.x = 0.1;
-    scene.add(leftEye, rightEye);
+    // Geometry for landmarks
+    const geometry = new THREE.BufferGeometry();
+    const positions = new Float32Array(468 * 3); // Mediapipe Face Landmarker has 468 points
+    geometry.setAttribute("position", new THREE.BufferAttribute(positions, 3));
 
-    const animate = function () {
-      requestAnimationFrame(animate);
+    const material = new THREE.PointsMaterial({
+      color: 0x00ff00,
+      size: 0.02,
+    });
 
-      // Only update if landmarks exist
-      if (landmarks?.leftEye && landmarks?.rightEye) {
-        leftEye.position.set(
-          landmarks.leftEye[0],
-          landmarks.leftEye[1],
-          landmarks.leftEye[2] || 0
-        );
-        rightEye.position.set(
-          landmarks.rightEye[0],
-          landmarks.rightEye[1],
-          landmarks.rightEye[2] || 0
-        );
-      }
+    const points = new THREE.Points(geometry, material);
+    scene.add(points);
+    pointsRef.current = points;
 
+    // Animation loop
+    const animate = () => {
+      animationIdRef.current = requestAnimationFrame(animate);
       renderer.render(scene, camera);
     };
     animate();
 
+    // ✅ Handle window resize
+    const handleResize = () => {
+      if (!mountRef.current) return;
+      const newWidth = mountRef.current.clientWidth;
+      const newHeight = mountRef.current.clientHeight || 400;
+      camera.aspect = newWidth / newHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(newWidth, newHeight);
+    };
+    window.addEventListener("resize", handleResize);
+
     // Cleanup
     return () => {
+      if (animationIdRef.current) cancelAnimationFrame(animationIdRef.current);
+      window.removeEventListener("resize", handleResize);
+      renderer.dispose();
+      geometry.dispose();
+      material.dispose();
       mountRef.current?.removeChild(renderer.domElement);
     };
-  }, [landmarks]); // ✅ fixed dependency array
+  }, []);
+
+  // Update landmark positions when new data arrives
+  useEffect(() => {
+    if (landmarks && pointsRef.current) {
+      const positions = (pointsRef.current.geometry as THREE.BufferGeometry)
+        .attributes.position as THREE.BufferAttribute;
+
+      const scale = 2; // scale up for visibility
+      for (let i = 0; i < landmarks.length; i++) {
+        const lm = landmarks[i];
+        positions.setXYZ(
+          i,
+          (lm.x - 0.5) * scale, // center around 0
+          -(lm.y - 0.5) * scale, // flip Y
+          lm.z * scale
+        );
+      }
+      positions.needsUpdate = true;
+    }
+  }, [landmarks]);
 
   return (
     <div
