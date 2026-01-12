@@ -3,13 +3,16 @@ import { useEffect, useRef } from "react";
 import * as THREE from "three";
 
 interface Props {
+  // Mediapipe returns an array of 468 landmarks, each with x,y,z
   landmarks: { x: number; y: number; z: number }[] | null;
 }
 
 export default function ThreeFace({ landmarks }: Props) {
   const mountRef = useRef<HTMLDivElement>(null);
-  const pointsRef = useRef<THREE.Points>();
-  const animationIdRef = useRef<number>();
+  const pointsRef = useRef<THREE.Points | null>(null);       // ✅ fixed
+  const animationIdRef = useRef<number | null>(null);         // ✅ fixed
+  const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
+  const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
 
   useEffect(() => {
     if (!mountRef.current) return;
@@ -21,20 +24,22 @@ export default function ThreeFace({ landmarks }: Props) {
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000);
     camera.position.z = 2;
+    cameraRef.current = camera;
 
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     renderer.setSize(width, height);
     renderer.setPixelRatio(window.devicePixelRatio);
     mountRef.current.appendChild(renderer.domElement);
+    rendererRef.current = renderer;
 
     // Lighting
     const light = new THREE.DirectionalLight(0xffffff, 1);
     light.position.set(0, 1, 1);
     scene.add(light);
 
-    // Geometry for landmarks
+    // Geometry for landmarks (468 points)
     const geometry = new THREE.BufferGeometry();
-    const positions = new Float32Array(468 * 3); // Mediapipe Face Landmarker has 468 points
+    const positions = new Float32Array(468 * 3);
     geometry.setAttribute("position", new THREE.BufferAttribute(positions, 3));
 
     const material = new THREE.PointsMaterial({
@@ -55,12 +60,12 @@ export default function ThreeFace({ landmarks }: Props) {
 
     // ✅ Handle window resize
     const handleResize = () => {
-      if (!mountRef.current) return;
+      if (!mountRef.current || !cameraRef.current || !rendererRef.current) return;
       const newWidth = mountRef.current.clientWidth;
       const newHeight = mountRef.current.clientHeight || 400;
-      camera.aspect = newWidth / newHeight;
-      camera.updateProjectionMatrix();
-      renderer.setSize(newWidth, newHeight);
+      cameraRef.current.aspect = newWidth / newHeight;
+      cameraRef.current.updateProjectionMatrix();
+      rendererRef.current.setSize(newWidth, newHeight);
     };
     window.addEventListener("resize", handleResize);
 
@@ -98,7 +103,7 @@ export default function ThreeFace({ landmarks }: Props) {
   return (
     <div
       ref={mountRef}
-      className="w-full h-[400px] lg:h-[500px] bg-gray-800 rounded-lg"
+      className="w-full h-[50vh] bg-gray-800 rounded-lg"
     />
   );
 }
