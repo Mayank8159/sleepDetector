@@ -29,9 +29,10 @@ npm install
 npm run dev
 
 
-Open [http://localhost:3000](https://sleep-detector-two.vercel.app/)
+Open [https://sleep-detector-two.vercel.app/]
  and allow webcam access.
 
 📄 License
 
 MIT © 2026 — Mayank Kumar Sharma
+
