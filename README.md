@@ -37,9 +37,4 @@ MIT License
 ### Built with ❤️ by Mayank Kumar Sharma
 ```
 
----
-
-This version is **short, elegant, and demo‑focused**. It highlights your live link and keeps the setup simple.  
-
-Would you like me to also design a **banner image (SVG/PNG)** for the README header so it looks visually striking on GitHub?
 
