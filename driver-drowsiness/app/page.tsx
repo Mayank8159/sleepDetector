@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
+import Alert from "./components/Alert";
 import WebcamFeed from "./components/WebcamFeed";
 import ThreeFace from "./components/ThreeFace";
 import { initDrowsinessDetector } from "./components/DrowsinessDetector";
@@ -44,6 +45,7 @@ export default function Page() {
 
   return (
     <div className="p-4 flex flex-col items-center gap-6 w-full max-w-6xl mx-auto">
+      <Alert active={drowsy} />
       <h1 className="text-2xl md:text-3xl font-bold text-center">
         Driver Drowsiness Detection
       </h1>
