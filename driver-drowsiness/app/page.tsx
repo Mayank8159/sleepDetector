@@ -3,19 +3,27 @@ import { useEffect, useRef, useState } from "react";
 import WebcamFeed from "./components/WebcamFeed";
 import ThreeFace from "./components/ThreeFace";
 import { initDrowsinessDetector } from "./components/DrowsinessDetector";
+import Alert from "./components/Alert";
 
 export default function Page() {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [landmarks, setLandmarks] = useState<any>(null);
   const [ear, setEar] = useState<number | null>(null);
   const [headNod, setHeadNod] = useState<boolean>(false);
+  
+  // This state updates immediately for the text panel
   const [drowsy, setDrowsy] = useState(false);
+  
+  // This state waits for 10 frames to trigger the Audio/UI popup
+  const [showAlert, setShowAlert] = useState(false);
 
   useEffect(() => {
     if (!videoRef.current) return;
 
     let runDetector: (() => Promise<any>) | null = null;
     let animationId: number;
+    
+    let drowsyFramesCount = 0;
 
     async function init() {
       runDetector = await initDrowsinessDetector(videoRef.current!);
@@ -28,10 +36,25 @@ export default function Page() {
             setEar(result.ear);
             setHeadNod(result.headNod);
             setDrowsy(result.drowsy);
+            
+            // --- Waits for 10 consc. frames before playing the audio ---
+            if (result.drowsy) {
+              drowsyFramesCount++;
+              
+              if (drowsyFramesCount === 10) {
+                setShowAlert(true);
+              }
+            } else {
+              if (drowsyFramesCount >= 10) {
+                setShowAlert(false);
+              }
+              drowsyFramesCount = 0; 
+            }
           }
         }
         animationId = requestAnimationFrame(loop);
       };
+
       loop();
     }
 
@@ -43,7 +66,7 @@ export default function Page() {
   }, []);
 
   return (
-    <div className="p-4 flex flex-col items-center gap-6 w-full max-w-6xl mx-auto">
+    <div className="p-4 flex flex-col items-center gap-6 w-full max-w-6xl mx-auto relative">
       <h1 className="text-2xl md:text-3xl font-bold text-center">
         Driver Drowsiness Detection
       </h1>
@@ -83,6 +106,9 @@ export default function Page() {
           </span>
         </div>
       </div>
+
+      {/* Pass the delayed showAlert state here instead of drowsy */}
+      <Alert active={showAlert} />
     </div>
   );
 }
