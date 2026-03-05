@@ -1,5 +1,6 @@
 // app/layout.tsx
 import "./globals.css"; // ensure this exists
+import Navbar from "./components/Navbar";
 
 export const metadata = {
   title: "Driver Drowsiness Detection",
@@ -11,7 +12,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en">
       <head />
       <body className="bg-black text-white antialiased min-h-screen flex flex-col">
-        {children}
+        <Navbar />
+        <main className="flex-1">{children}</main>
       </body>
     </html>
   );
