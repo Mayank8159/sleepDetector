@@ -10,10 +10,10 @@ export default function Page() {
   const [landmarks, setLandmarks] = useState<any>(null);
   const [ear, setEar] = useState<number | null>(null);
   const [headNod, setHeadNod] = useState<boolean>(false);
-  
+
   // This state updates immediately for the text panel
   const [drowsy, setDrowsy] = useState(false);
-  
+
   // This state waits for 10 frames to trigger the Audio/UI popup
   const [showAlert, setShowAlert] = useState(false);
 
@@ -22,7 +22,7 @@ export default function Page() {
 
     let runDetector: (() => Promise<any>) | null = null;
     let animationId: number;
-    
+
     let drowsyFramesCount = 0;
 
     async function init() {
@@ -36,11 +36,11 @@ export default function Page() {
             setEar(result.ear);
             setHeadNod(result.headNod);
             setDrowsy(result.drowsy);
-            
+
             // --- Waits for 10 consc. frames before playing the audio ---
             if (result.drowsy) {
               drowsyFramesCount++;
-              
+
               if (drowsyFramesCount === 10) {
                 setShowAlert(true);
               }
@@ -48,7 +48,7 @@ export default function Page() {
               if (drowsyFramesCount >= 10) {
                 setShowAlert(false);
               }
-              drowsyFramesCount = 0; 
+              drowsyFramesCount = 0;
             }
           }
         }
@@ -66,7 +66,7 @@ export default function Page() {
   }, []);
 
   return (
-    <div className="p-4 flex flex-col items-center gap-6 w-full max-w-6xl mx-auto relative">
+    <div id="detection" className="p-4 flex flex-col items-center gap-6 w-full max-w-6xl mx-auto relative">
       <h1 className="text-2xl md:text-3xl font-bold text-center">
         Driver Drowsiness Detection
       </h1>
@@ -82,7 +82,7 @@ export default function Page() {
       </div>
 
       {/* Detected data panel */}
-      <div className="w-full bg-gray-900 text-white rounded-lg p-4 flex flex-col md:flex-row justify-around items-center gap-4">
+      <div id="dashboard" className="w-full bg-gray-900 text-white rounded-lg p-4 flex flex-col md:flex-row justify-around items-center gap-4">
         <div className="flex flex-col items-center">
           <span className="text-sm text-gray-400">Eye Aspect Ratio (EAR)</span>
           <span className="text-lg font-semibold">
@@ -109,6 +109,17 @@ export default function Page() {
 
       {/* Pass the delayed showAlert state here instead of drowsy */}
       <Alert active={showAlert} />
+
+      {/* About section */}
+      <div id="about" className="w-full bg-gray-900 text-white rounded-lg p-6 mt-2">
+        <h2 className="text-xl font-bold mb-3">About</h2>
+        <p className="text-gray-400 text-sm leading-relaxed">
+          DrowsiGuard uses real-time computer vision to monitor driver alertness.
+          It tracks Eye Aspect Ratio (EAR) and head nod patterns via facial
+          landmarks to detect signs of drowsiness and triggers an audio-visual
+          alert when sustained drowsiness is detected.
+        </p>
+      </div>
     </div>
   );
 }
